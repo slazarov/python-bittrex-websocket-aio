@@ -1,0 +1,3 @@
+uvloop>=0.9.1
+websockets>=4.0.1
+git+https://github.com/slazarov/python-signalr-client.git@master#egg=signalr-client-aio
