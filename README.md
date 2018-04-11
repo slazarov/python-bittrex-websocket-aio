@@ -47,7 +47,7 @@ Use your imagination.
 # Installation
 #### Pypi (most stable)
 ```python
-pip install bittrex-websocket
+TBA
 ```
 #### Github (master)
 ```python

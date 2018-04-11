@@ -21,7 +21,6 @@ logger = logging.getLogger(__name__)
 class BittrexSocket(WebSocket):
 
     def __init__(self):
-        self.socket_loop = None
         self.control_queue = None
         self.invokes = []
         self.tickers = None
