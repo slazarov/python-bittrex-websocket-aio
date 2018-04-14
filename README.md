@@ -12,11 +12,11 @@ The major changes were the removal of the need to bypass Cloudflare and the intr
 
 Following that, I decided to repurpose the client as a higher level Bittrex API which users can use to build on. The major changes, which are going to be reflected both in the aio and soon in the gevent version of the client, will be:
 
-* Existing methods will be restructured in order to mimic the official ones, i.e `subscribe_to_orderbook_update` will become `subscribe_to_exchange_deltas`. This would make referencing the official documentation more clear and will reduce confusion.
-* `QueryExchangeState` will become a public method so that users can invoke it freely.
+* ~~Existing methods will be restructured in order to mimic the official ones, i.e `subscribe_to_orderbook_update` will become `subscribe_to_exchange_deltas`. This would make referencing the official documentation more clear and will reduce confusion.~~
+* ~~`QueryExchangeState` will become a public method so that users can invoke it freely.~~
 * The method `subscribe_to_orderbook` will be removed and instead placed as a separate module. Before the latter happens, users can use the legacy library.
-* Private, account specific methods will be implemented, i.e `Balance Delta` & `Order Delta`
-* Replacement of the legacy `on_channels` with only two channels for the public and private streams.
+* ~~Private, account specific methods will be implemented, i.e `Balance Delta` & `Order Delta`~~
+* ~~Replacement of the legacy `on_channels` with only two channels for the public and private streams.~~
 
 ### Disclaimer
 
