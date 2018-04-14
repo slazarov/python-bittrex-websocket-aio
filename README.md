@@ -47,7 +47,7 @@ Use your imagination.
 # Installation
 #### Pypi (most stable)
 ```python
-TBA
+pip install bittrex-websocket-aio
 ```
 #### Github (master)
 ```python
