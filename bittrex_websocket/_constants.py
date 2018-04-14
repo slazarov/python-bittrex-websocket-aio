@@ -26,7 +26,6 @@ class BittrexParameters(Constant):
     MARKET_DELTA = 'uE'
     SUMMARY_DELTA = 'uS'
     SUMMARY_DELTA_LITE = 'uL'
-    # Callbacks to be implemented
     BALANCE_DELTA = 'uB'
     ORDER_DELTA = 'uO'
 
@@ -38,7 +37,6 @@ class BittrexMethods(Constant):
     SUBSCRIBE_TO_SUMMARY_LITE_DELTAS = 'SubscribeToSummaryLiteDeltas'
     QUERY_SUMMARY_STATE = 'QuerySummaryState'
     QUERY_EXCHANGE_STATE = 'QueryExchangeState'
-    # Private methods - TO BE IMPLEMENTED
     GET_AUTH_CONTENT = 'GetAuthContext'
     AUTHENTICATE = 'Authenticate'
 

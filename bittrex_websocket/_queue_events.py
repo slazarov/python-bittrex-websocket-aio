@@ -28,10 +28,10 @@ class SubscribeEvent(Event):
     Handles the event of subscribing specific ticker(s) to specific channels.
     """
 
-    def __init__(self, tickers, invoke):
+    def __init__(self, invoke, *payload):
         self.type = EventTypes.SUBSCRIBE
-        self.tickers = tickers
         self.invoke = invoke
+        self.payload = payload
 
 
 class CloseEvent(Event):

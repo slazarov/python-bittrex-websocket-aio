@@ -9,7 +9,7 @@ from ._logger import add_stream_logger, remove_stream_logger
 from threading import Thread
 from ._queue_events import *
 from ._constants import EventTypes, BittrexParameters, BittrexMethods, ErrorMessages
-from ._auxiliary import process_message, BittrexConnection
+from ._auxiliary import process_message, create_signature, BittrexConnection
 from ._abc import WebSocket
 from queue import Queue
 from ._exceptions import *
@@ -26,6 +26,7 @@ class BittrexSocket(WebSocket):
         self.tickers = None
         self.connection = None
         self.threads = []
+        self.credentials = None
         self._start_main_thread()
 
     def _start_main_thread(self):
@@ -42,9 +43,10 @@ class BittrexSocket(WebSocket):
                 if event.type == EventTypes.CONNECT:
                     self._handle_connect()
                 elif event.type == EventTypes.SUBSCRIBE:
-                    self._handle_subscribe(event.tickers, event.invoke)
+                    self._handle_subscribe(event.invoke, event.payload)
                 elif event.type == EventTypes.CLOSE:
                     self.connection.conn.close()
+                    break
                 self.control_queue.task_done()
 
     def _handle_connect(self):
@@ -55,9 +57,8 @@ class BittrexSocket(WebSocket):
         hub.client.on(BittrexParameters.MARKET_DELTA, self._on_public)
         hub.client.on(BittrexParameters.SUMMARY_DELTA, self._on_public)
         hub.client.on(BittrexParameters.SUMMARY_DELTA_LITE, self._on_public)
-        # Future implementations
-        # hub.client.on(BittrexParameters.BALANCE_DELTA, self._on_private)
-        # hub.client.on(BittrexParameters.ORDER_DELTA, self._on_private)
+        hub.client.on(BittrexParameters.BALANCE_DELTA, self._on_private)
+        hub.client.on(BittrexParameters.ORDER_DELTA, self._on_private)
         self.connection = BittrexConnection(connection, hub)
         thread = Thread(target=self._connection_handler, daemon=True, name='SocketConnection')
         self.threads.append(thread)
@@ -67,17 +68,43 @@ class BittrexSocket(WebSocket):
         try:
             logger.info('Establishing connection to Bittrex.')
             self.connection.conn.start()
-        except ConnectionClosed:
-            logger.info('Bittrex connection successfully closed.')
+        except ConnectionClosed as e:
+            if e.code == 1000:
+                logger.info('Bittrex connection successfully closed.')
+            elif e.code == 1006:
+                logger.error('{}. Initiating reconnection procedure'.format(e.args[0]))
+                events = []
+                for item in self.invokes:
+                    event = SubscribeEvent([item['ticker']], item['invoke'])
+                    events.append(event)
+                # Reset previous connection
+                self.invokes, self.connection = [], None
+                # Restart
+                self.control_queue.put(ConnectEvent())
+                for event in events:
+                    self.control_queue.put(event)
+        except ConnectionError as e:
+            raise ConnectionError(e)
 
-    def _handle_subscribe(self, tickers, invoke):
-        if tickers is None:
-            self.invokes.append({'invoke': invoke, 'ticker': None})
-            self.connection.corehub.server.invoke(invoke)
-        else:
-            for ticker in tickers:
+    def _handle_subscribe(self, invoke, payload):
+
+        if invoke in [BittrexMethods.SUBSCRIBE_TO_EXCHANGE_DELTAS, BittrexMethods.QUERY_EXCHANGE_STATE]:
+            for ticker in payload[0]:
                 self.invokes.append({'invoke': invoke, 'ticker': ticker})
                 self.connection.corehub.server.invoke(invoke, ticker)
+                logger.info('Successfully subscribed to [{}] for [{}].'.format(invoke, ticker))
+        elif invoke == BittrexMethods.GET_AUTH_CONTENT:
+            self.connection.corehub.server.invoke(invoke, payload[0])
+            self.invokes.append({'invoke': invoke, 'ticker': payload[0]})
+            logger.info('Retrieving authentication challenge.')
+        elif invoke == BittrexMethods.AUTHENTICATE:
+            self.connection.corehub.server.invoke(invoke, payload[0], payload[1])
+            logger.info('Challenge retrieved. Sending authentication. Awaiting messages...')
+            # No need to append invoke list, because AUTHENTICATE is called from successful GET_AUTH_CONTENT.
+        else:
+            self.invokes.append({'invoke': invoke, 'ticker': None})
+            self.connection.corehub.server.invoke(invoke)
+            logger.info('Successfully invoked [{}].'.format(invoke))
 
     # ==============
     # Public Methods
@@ -86,33 +113,38 @@ class BittrexSocket(WebSocket):
     def subscribe_to_exchange_deltas(self, tickers):
         if type(tickers) is list:
             invoke = BittrexMethods.SUBSCRIBE_TO_EXCHANGE_DELTAS
-            event = SubscribeEvent(tickers=tickers, invoke=invoke)
+            event = SubscribeEvent(invoke, tickers)
             self.control_queue.put(event)
         else:
             raise TypeError(ErrorMessages.INVALID_TICKER_INPUT)
 
     def subscribe_to_summary_deltas(self):
         invoke = BittrexMethods.SUBSCRIBE_TO_SUMMARY_DELTAS
-        event = SubscribeEvent(tickers=None, invoke=invoke)
+        event = SubscribeEvent(invoke, None)
         self.control_queue.put(event)
 
     def subscribe_to_summary_lite_deltas(self):
         invoke = BittrexMethods.SUBSCRIBE_TO_SUMMARY_LITE_DELTAS
-        event = SubscribeEvent(tickers=None, invoke=invoke)
+        event = SubscribeEvent(invoke, None)
         self.control_queue.put(event)
 
     def query_summary_state(self):
         invoke = BittrexMethods.QUERY_SUMMARY_STATE
-        event = SubscribeEvent(tickers=None, invoke=invoke)
+        event = SubscribeEvent(invoke, None)
         self.control_queue.put(event)
 
     def query_exchange_state(self, tickers):
         if type(tickers) is list:
             invoke = BittrexMethods.QUERY_EXCHANGE_STATE
-            event = SubscribeEvent(tickers, invoke=invoke)
+            event = SubscribeEvent(invoke, tickers)
             self.control_queue.put(event)
         else:
             raise TypeError(ErrorMessages.INVALID_TICKER_INPUT)
+
+    def authenticate(self, api_key, api_secret):
+        self.credentials = {'api_key': api_key, 'api_secret': api_secret}
+        event = SubscribeEvent(BittrexMethods.GET_AUTH_CONTENT, api_key)
+        self.control_queue.put(event)
 
     def disconnect(self):
         self.control_queue.put(CloseEvent())
@@ -125,29 +157,25 @@ class BittrexSocket(WebSocket):
         await self.on_public(await process_message(args[0]))
 
     async def _on_private(self, args):
-        ### TO BE IMPLEMENTED ###
-        pass
+        msg = await process_message(args[0])
+        await self.on_private(msg)
 
     async def _on_debug(self, **kwargs):
-        # `QueryExchangeState` and `QuerySummaryState` are received in the debug channel.
+        # `QueryExchangeState`, `QuerySummaryState` and `GetAuthContext` are received in the debug channel.
         await self._is_query_invoke(kwargs)
 
     async def _is_query_invoke(self, kwargs):
         if 'R' in kwargs and type(kwargs['R']) is not bool:
-            msg = await process_message(kwargs['R'])
-            if msg is None:
-                return
-            elif 'M' in msg:
-                msg['invoke_type'] = BittrexMethods.QUERY_EXCHANGE_STATE
-
-                # Missing ticker name workaround.
-                # Fixed in https://github.com/Bittrex/beta/issues/6.
-                # Leaving just in case.
-                # msg['M'] = self.invokes[int(kwargs['I'])]['ticker']
-
+            invoke = self.invokes[int(kwargs['I'])]['invoke']
+            if invoke == BittrexMethods.GET_AUTH_CONTENT:
+                signature = await create_signature(self.credentials['api_secret'], kwargs['R'])
+                event = SubscribeEvent(BittrexMethods.AUTHENTICATE, self.credentials['api_key'], signature)
+                self.control_queue.put(event)
             else:
-                msg['invoke_type'] = BittrexMethods.QUERY_SUMMARY_STATE
-            await self.on_public(msg)
+                msg = await process_message(kwargs['R'])
+                if msg is not None:
+                    msg['invoke_type'] = invoke
+                    await self.on_public(msg)
 
     # ======================
     # Public Channel Methods
@@ -156,11 +184,11 @@ class BittrexSocket(WebSocket):
     async def on_public(self, msg):
         pass
 
-    async def on_private(self, args):
+    async def on_private(self, msg):
         pass
 
     async def on_error(self, args):
-        pass
+        logger.error(args)
 
     # =============
     # Other Methods

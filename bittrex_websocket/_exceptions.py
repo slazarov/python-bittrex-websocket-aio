@@ -5,3 +5,4 @@
 # Stanislav Lazarov
 
 from websockets.exceptions import ConnectionClosed
+from requests.exceptions import ConnectionError

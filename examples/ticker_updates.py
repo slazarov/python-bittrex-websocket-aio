@@ -50,7 +50,7 @@ def main():
     else:
         print('We have received updates for all tickers. Closing...')
         ws.disconnect()
-        sleep(60)
+        sleep(10)
 
 
 if __name__ == "__main__":
