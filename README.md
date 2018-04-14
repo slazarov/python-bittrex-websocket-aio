@@ -105,12 +105,16 @@ def query_exchange_state(self, tickers):
     :param tickers: A list of tickers you are interested in.
     :type tickers: []
     """
-```
 
-#### Unsubscribe Methods
+def authenticate(self, api_key, api_secret):
+    """
+    Verifies a user’s identity to the server and begins receiving account-level notifications
 
-```python
-TBA
+    :param api_key: Your api_key with the relevant permissions.
+    :type api_key: str
+    :param api_secret: Your api_secret with the relevant permissions.
+    :type api_secret: str
+    """
 ```
 
 #### Other Methods
@@ -152,7 +156,12 @@ def on_error(self, error):
 Check the examples folder.
 
 # Change log
-0.0.1 - Initial release on github.
+0.0.2 - 14/04/2018
+* Implemented reconnection
+* Implemented private account-level methods. Check `authenticate(self, api_key, api_secret)`.
+
+0.0.1 - 07/04/2018
+* Initial release on github.
 
 # Other libraries
 **[python-bittrex-autosell](https://github.com/slazarov/python-bittrex-autosell)**

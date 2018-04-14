@@ -184,6 +184,19 @@ class WebSocket(ABC):
         """
 
     @abstractmethod
+    def authenticate(self, api_key, api_secret):
+        """
+        Verifies a user’s identity to the server and begins receiving account-level notifications
+
+        :param api_key: Your api_key with the relevant permissions.
+        :type api_key: str
+        :param api_secret: Your api_secret with the relevant permissions.
+        :type api_secret: str
+
+        https://github.com/slazarov/beta#authenticate
+        """
+
+    @abstractmethod
     async def on_public(self, msg):
         """
         Streams all incoming messages from public delta channels.
