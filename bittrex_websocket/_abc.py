@@ -3,6 +3,8 @@
 
 # bittrex_websocket/_abc.py
 # Stanislav Lazarov
+#
+# Official Bittrex documentation: https://github.com/Bittrex/beta
 
 from abc import ABC, abstractmethod
 
@@ -108,6 +110,76 @@ class WebSocket(ABC):
                             BaseVolume: decimal
                         }
                     ]
+            }
+        """
+
+    @abstractmethod
+    def query_summary_state(self):
+        """
+        Allows the caller to retrieve the full state for all markets.
+
+        JSON payload:
+            {
+                Nonce: int,
+                Summaries:
+                    [
+                        {
+                            MarketName: string,
+                            High: decimal,
+                            Low: decimal,
+                            Volume: decimal,
+                            Last: decimal,
+                            BaseVolume: decimal,
+                            TimeStamp: date,
+                            Bid: decimal,
+                            Ask: decimal,
+                            OpenBuyOrders: int,
+                            OpenSellOrders: int,
+                            PrevDay: decimal,
+                            Created: date
+                        }
+                    ]
+            }
+        """
+
+    @abstractmethod
+    def query_exchange_state(self, tickers):
+        """
+        Allows the caller to retrieve the full order book for a specific market.
+
+        :param tickers: A list of tickers you are interested in.
+        :type tickers: []
+
+        JSON payload:
+            {
+                MarketName : string,
+                Nonce      : int,
+                Buys:
+                [
+                    {
+                        Quantity : decimal,
+                        Rate     : decimal
+                    }
+                ],
+                Sells:
+                [
+                    {
+                        Quantity : decimal,
+                        Rate     : decimal
+                    }
+                ],
+                Fills:
+                [
+                    {
+                        Id        : int,
+                        TimeStamp : date,
+                        Quantity  : decimal,
+                        Price     : decimal,
+                        Total     : decimal,
+                        FillType  : string,
+                        OrderType : string
+                    }
+                ]
             }
         """
 
