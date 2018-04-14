@@ -6,16 +6,15 @@ install_requires = \
     [
         'uvloop>=0.9.1',
         'websockets>=4.0.1',
-        'signalr-client-aio'
+        'signalr-client-aio>=0.0.1.6.1'
     ]
 
 setup(
-    name='bittrex_websocket',
-    version='0.0.0.2',
+    name='bittrex-websocket-aio',
+    version='0.0.0.2.2',
     author='Stanislav Lazarov',
     author_email='s.a.lazarov@gmail.com',
     license='MIT',
-    dependency_links=['https://github.com/slazarov/python-signalr-client/tarball/master#egg=signalr-client-aio'],
     url='https://github.com/slazarov/python-bittrex-websocket-aio',
     packages=find_packages(exclude=['tests*']),
     install_requires=install_requires,
