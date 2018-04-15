@@ -45,18 +45,15 @@ Use your imagination.
 # Dependencies
 
 # Installation
-#### Pypi (most stable)
-```python
-pip install bittrex-websocket-aio
-```
-#### Github (master)
+
+The library can be installed through Github and PyPi. For the latest updates, use Github.
+
 ```python
 pip install git+https://github.com/slazarov/python-bittrex-websocket-aio.git
-```
-#### Github (work in progress branch)
-```python
 pip install git+https://github.com/slazarov/python-bittrex-websocket-aio.git@next-version-number
+pip install bittrex-websocket-aio
 ```
+
 # Methods
 #### Subscribe Methods
 ```python
@@ -141,10 +138,10 @@ def disable_log():
 
 # Message channels
 ```python
-def on_public(self, msg):
+async def on_public(self, msg):
     # The main channel for all public methods.
 
-def on_private(self, msg):
+async def on_private(self, msg):
     # The main channel for all private methods.
 
 def on_error(self, error):

@@ -1,1 +1,2 @@
+from bittrex_websocket import _logger
 from bittrex_websocket.websocket_client import BittrexSocket

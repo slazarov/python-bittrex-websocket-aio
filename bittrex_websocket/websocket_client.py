@@ -75,7 +75,7 @@ class BittrexSocket(WebSocket):
                 logger.error('{}. Initiating reconnection procedure'.format(e.args[0]))
                 events = []
                 for item in self.invokes:
-                    event = SubscribeEvent([item['ticker']], item['invoke'])
+                    event = SubscribeEvent(item['invoke'], [item['ticker']])
                     events.append(event)
                 # Reset previous connection
                 self.invokes, self.connection = [], None
