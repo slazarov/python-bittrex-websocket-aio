@@ -15,18 +15,24 @@ from queue import Queue
 from ._exceptions import *
 from signalr_aio import Connection
 
+try:
+    from cfscrape import create_scraper as Session
+except ImportError:
+    from requests import Session
+
 logger = logging.getLogger(__name__)
 
 
 class BittrexSocket(WebSocket):
 
-    def __init__(self):
+    def __init__(self, url=None):
         self.control_queue = None
         self.invokes = []
         self.tickers = None
         self.connection = None
         self.threads = []
         self.credentials = None
+        self.url = BittrexParameters.URL if url is None else url
         self._start_main_thread()
 
     def _start_main_thread(self):
@@ -50,7 +56,7 @@ class BittrexSocket(WebSocket):
                 self.control_queue.task_done()
 
     def _handle_connect(self):
-        connection = Connection(BittrexParameters.URL)
+        connection = Connection(BittrexParameters.URL, Session())
         hub = connection.register_hub(BittrexParameters.HUB)
         connection.received += self._on_debug
         connection.error += self.on_error
@@ -66,7 +72,7 @@ class BittrexSocket(WebSocket):
 
     def _connection_handler(self):
         try:
-            logger.info('Establishing connection to Bittrex.')
+            logger.info('Establishing connection to Bittrex through {}.'.format(self.url))
             self.connection.conn.start()
         except ConnectionClosed as e:
             if e.code == 1000:

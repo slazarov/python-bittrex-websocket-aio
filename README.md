@@ -55,6 +55,16 @@ pip install bittrex-websocket-aio
 ```
 
 # Methods
+#### Custom URL
+Custom URLs can be passed to the client upon instantiating.
+```python
+# 'https://socket.bittrex.com/signalr' is currently Cloudflare protected
+# 'https://beta.bittrex.com/signalr' (DEFAULT) is not
+
+# Create the socket instance
+ws = MySocket(url=None)
+# rest of your code
+```
 #### Subscribe Methods
 ```python
 def subscribe_to_exchange_deltas(self, tickers):
@@ -153,6 +163,10 @@ def on_error(self, error):
 Check the examples folder.
 
 # Change log
+0.0.0.2.5 - 22/04/2018
+* Custom urls can now be passed to the client
+* If `cfscrape` is installed, the client will automatically use it
+
 0.0.2 - 14/04/2018
 * Implemented reconnection
 * Implemented private account-level methods. Check `authenticate(self, api_key, api_secret)`.
