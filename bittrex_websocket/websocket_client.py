@@ -25,13 +25,14 @@ logger = logging.getLogger(__name__)
 
 class BittrexSocket(WebSocket):
 
-    def __init__(self, url=None):
+    def __init__(self, url=None, run_forever=False):
         self.control_queue = None
         self.invokes = []
         self.tickers = None
         self.connection = None
         self.threads = []
         self.credentials = None
+        self.run_forever = run_forever
         self.url = BittrexParameters.URL if url is None else url
         self._start_main_thread()
 
@@ -70,6 +71,20 @@ class BittrexSocket(WebSocket):
         self.threads.append(thread)
         thread.start()
 
+    def _reconnect_event(self):
+        logger.error('{}. Initiating reconnection procedure'.format(e.args[0]))
+        events = []
+        for item in self.invokes:
+            event = SubscribeEvent(item['invoke'], [item['ticker']])
+            events.append(event)
+        # Reset previous connection
+        self.invokes, self.connection = [], None
+        # Restart
+        self.control_queue.put(ConnectEvent())
+        for event in events:
+            self.control_queue.put(event)
+        return
+
     def _connection_handler(self):
         try:
             logger.info('Establishing connection to Bittrex through {}.'.format(self.url))
@@ -77,18 +92,10 @@ class BittrexSocket(WebSocket):
         except ConnectionClosed as e:
             if e.code == 1000:
                 logger.info('Bittrex connection successfully closed.')
+            elif e.code == 1000 and self.run_forever is True:
+                self._reconnect_event()
             elif e.code == 1006:
-                logger.error('{}. Initiating reconnection procedure'.format(e.args[0]))
-                events = []
-                for item in self.invokes:
-                    event = SubscribeEvent(item['invoke'], [item['ticker']])
-                    events.append(event)
-                # Reset previous connection
-                self.invokes, self.connection = [], None
-                # Restart
-                self.control_queue.put(ConnectEvent())
-                for event in events:
-                    self.control_queue.put(event)
+                self._reconnect_event()
         except ConnectionError as e:
             raise ConnectionError(e)
 
