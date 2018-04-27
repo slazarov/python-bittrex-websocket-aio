@@ -71,7 +71,7 @@ class BittrexSocket(WebSocket):
         self.threads.append(thread)
         thread.start()
 
-    def _reconnect_event(self):
+    def _reconnect_event(self, e):
         logger.error('{}. Initiating reconnection procedure'.format(e.args[0]))
         events = []
         for item in self.invokes:
@@ -93,9 +93,9 @@ class BittrexSocket(WebSocket):
             if e.code == 1000:
                 logger.info('Bittrex connection successfully closed.')
             elif e.code == 1000 and self.run_forever is True:
-                self._reconnect_event()
+                self._reconnect_event(e)
             elif e.code == 1006:
-                self._reconnect_event()
+                self._reconnect_event(e)
         except ConnectionError as e:
             raise ConnectionError(e)
 
