@@ -90,7 +90,7 @@ class BittrexSocket(WebSocket):
             logger.info('Establishing connection to Bittrex through {}.'.format(self.url))
             self.connection.conn.start()
         except ConnectionClosed as e:
-            if e.code == 1000:
+            if e.code == 1000 and self.run_forever is False:
                 logger.info('Bittrex connection successfully closed.')
             elif e.code == 1000 and self.run_forever is True:
                 self._reconnect_event(e)
