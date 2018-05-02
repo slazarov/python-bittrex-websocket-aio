@@ -8,7 +8,7 @@ import logging
 from ._logger import add_stream_logger, remove_stream_logger
 from threading import Thread
 from ._queue_events import *
-from ._constants import EventTypes, BittrexParameters, BittrexMethods, ErrorMessages
+from ._constants import EventTypes, BittrexParameters, BittrexMethods, ErrorMessages, OtherConstants
 from ._auxiliary import process_message, create_signature, BittrexConnection
 from ._abc import WebSocket
 from queue import Queue
@@ -50,6 +50,8 @@ class BittrexSocket(WebSocket):
                     self._handle_connect()
                 elif event.type == EventTypes.SUBSCRIBE:
                     self._handle_subscribe(event.invoke, event.payload)
+                elif event.type == EventTypes.RECONNECT:
+                    self._handle_reconnect(event.error_message)
                 elif event.type == EventTypes.CLOSE:
                     self.connection.conn.close()
                     break
@@ -72,28 +74,26 @@ class BittrexSocket(WebSocket):
 
     def _connection_handler(self):
         try:
-            logger.info('Establishing connection to Bittrex through {}.'.format(self.url))
+            if str(type(self.connection.conn.session)) == OtherConstants.CF_SESSION_TYPE:
+                logger.info('Establishing connection to Bittrex through {}.'.format(self.url))
+                logger.info('cfscrape detected, using it to bypass Cloudflare.')
+            else:
+                logger.info('Establishing connection to Bittrex through {}.'.format(self.url))
             self.connection.conn.start()
         except ConnectionClosed as e:
             if e.code == 1000:
                 logger.info('Bittrex connection successfully closed.')
             elif e.code == 1006:
-                logger.error('{}. Initiating reconnection procedure'.format(e.args[0]))
-                events = []
-                for item in self.invokes:
-                    event = SubscribeEvent(item['invoke'], [item['ticker']])
-                    events.append(event)
-                # Reset previous connection
-                self.invokes, self.connection = [], None
-                # Restart
-                self.control_queue.put(ConnectEvent())
-                for event in events:
-                    self.control_queue.put(event)
+                event = ReconnectEvent(e.args[0])
+                self.control_queue.put(event)
         except ConnectionError as e:
             raise ConnectionError(e)
+        except InvalidStatusCode as e:
+            message = "Status code not 101: {}".format(e.status_code)
+            event = ReconnectEvent(message)
+            self.control_queue.put(event)
 
     def _handle_subscribe(self, invoke, payload):
-
         if invoke in [BittrexMethods.SUBSCRIBE_TO_EXCHANGE_DELTAS, BittrexMethods.QUERY_EXCHANGE_STATE]:
             for ticker in payload[0]:
                 self.invokes.append({'invoke': invoke, 'ticker': ticker})
@@ -111,6 +111,20 @@ class BittrexSocket(WebSocket):
             self.invokes.append({'invoke': invoke, 'ticker': None})
             self.connection.corehub.server.invoke(invoke)
             logger.info('Successfully invoked [{}].'.format(invoke))
+
+    def _handle_reconnect(self, error_message):
+        logger.error('{}.'.format(error_message))
+        logger.error('Initiating reconnection procedure')
+        events = []
+        for item in self.invokes:
+            event = SubscribeEvent(item['invoke'], [item['ticker']])
+            events.append(event)
+        # Reset previous connection
+        self.invokes, self.connection = [], None
+        # Restart
+        self.control_queue.put(ConnectEvent())
+        for event in events:
+            self.control_queue.put(event)
 
     # ==============
     # Public Methods

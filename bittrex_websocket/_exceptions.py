@@ -4,5 +4,5 @@
 # bittrex_websocket/_exceptions.py
 # Stanislav Lazarov
 
-from websockets.exceptions import ConnectionClosed
+from websockets.exceptions import ConnectionClosed, InvalidStatusCode
 from requests.exceptions import ConnectionError
