@@ -5,20 +5,13 @@
 # Stanislav Lazarov
 
 
-class Constant(object):
-    """
-    Event is base class providing an interface
-    for all subsequent(inherited) constants.
-    """
-
-
-class EventTypes(Constant):
+class EventTypes:
     CONNECT = 'CONNECT'
     SUBSCRIBE = 'SUBSCRIBE'
     CLOSE = 'CLOSE'
 
 
-class BittrexParameters(Constant):
+class BittrexParameters:
     # Connection parameters
     URL = 'https://beta.bittrex.com/signalr'
     HUB = 'c2'
@@ -30,7 +23,7 @@ class BittrexParameters(Constant):
     ORDER_DELTA = 'uO'
 
 
-class BittrexMethods(Constant):
+class BittrexMethods:
     # Public methods
     SUBSCRIBE_TO_EXCHANGE_DELTAS = 'SubscribeToExchangeDeltas'
     SUBSCRIBE_TO_SUMMARY_DELTAS = 'SubscribeToSummaryDeltas'
@@ -41,5 +34,5 @@ class BittrexMethods(Constant):
     AUTHENTICATE = 'Authenticate'
 
 
-class ErrorMessages(Constant):
+class ErrorMessages:
     INVALID_TICKER_INPUT = 'Tickers must be submitted as a list.'

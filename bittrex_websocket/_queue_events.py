@@ -7,14 +7,7 @@
 from ._constants import EventTypes
 
 
-class Event(object):
-    """
-    Event is base class providing an interface
-    for all subsequent(inherited) events.
-    """
-
-
-class ConnectEvent(Event):
+class ConnectEvent:
     """
     Handles the event of creating a new connection.
     """
@@ -23,7 +16,7 @@ class ConnectEvent(Event):
         self.type = EventTypes.CONNECT
 
 
-class SubscribeEvent(Event):
+class SubscribeEvent:
     """
     Handles the event of subscribing specific ticker(s) to specific channels.
     """
@@ -34,7 +27,7 @@ class SubscribeEvent(Event):
         self.payload = payload
 
 
-class CloseEvent(Event):
+class CloseEvent:
     """
     Handles the event of closing the socket.
     """
