@@ -73,12 +73,12 @@ class BittrexSocket(WebSocket):
         thread.start()
 
     def _connection_handler(self):
+        if str(type(self.connection.conn.session)) == OtherConstants.CF_SESSION_TYPE:
+            logger.info('Establishing connection to Bittrex through {}.'.format(self.url))
+            logger.info('cfscrape detected, using it to bypass Cloudflare.')
+        else:
+            logger.info('Establishing connection to Bittrex through {}.'.format(self.url))
         try:
-            if str(type(self.connection.conn.session)) == OtherConstants.CF_SESSION_TYPE:
-                logger.info('Establishing connection to Bittrex through {}.'.format(self.url))
-                logger.info('cfscrape detected, using it to bypass Cloudflare.')
-            else:
-                logger.info('Establishing connection to Bittrex through {}.'.format(self.url))
             self.connection.conn.start()
         except ConnectionClosed as e:
             if e.code == 1000:
