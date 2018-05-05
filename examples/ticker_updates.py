@@ -6,9 +6,10 @@
 
 # Sample script to show how subscribe_to_exchange_deltas() works.
 # Overview:
-#   Creates a custom ticker_updates_container dict through on_open method.
+#   Creates a custom ticker_updates_container dict.
 #   Subscribes to N tickers to get their general information.
-#   When information is received, checks if the ticker is in ticker_updates_container and adds it if not.
+#   When information is received, checks if the ticker is
+#   in ticker_updates_container and adds it if not.
 #   Disconnects when it has the information for each ticker.
 
 from bittrex_websocket.websocket_client import BittrexSocket
