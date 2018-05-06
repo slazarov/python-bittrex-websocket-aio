@@ -20,15 +20,14 @@ from time import sleep
 
 def main():
     class MySocket(BittrexSocket):
-        def __init__(self, url=None):
-            super().__init__(url)
-            self.ticker_updates_container = {}
 
         async def on_public(self, msg):
             name = msg['M']
-            if name not in self.ticker_updates_container:
-                self.ticker_updates_container[name] = msg
+            if name not in ticker_updates_container:
+                ticker_updates_container[name] = msg
                 print('Just received market update for {}.'.format(name))
+
+    ticker_updates_container = {}
 
     # Create the socket instance
     ws = MySocket()
@@ -48,7 +47,7 @@ def main():
     # it is the recommended way when you are subscribing to a large list of tickers.
     # ws.subscribe_to_exchange_deltas(tickers)
 
-    while len(ws.ticker_updates_container) < len(tickers):
+    while len(ticker_updates_container) < len(tickers):
         sleep(1)
     else:
         print('We have received updates for all tickers. Closing...')
