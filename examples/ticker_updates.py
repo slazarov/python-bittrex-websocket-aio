@@ -4,13 +4,15 @@
 # /examples/ticker_updates.py
 # Stanislav Lazarov
 
-# Sample script to show how subscribe_to_exchange_deltas() works.
+# Sample script showing how subscribe_to_exchange_deltas() works.
+
 # Overview:
-#   Creates a custom ticker_updates_container dict.
-#   Subscribes to N tickers to get their general information.
-#   When information is received, checks if the ticker is
-#   in ticker_updates_container and adds it if not.
-#   Disconnects when it has the information for each ticker.
+# ---------
+# 1) Creates a custom ticker_updates_container dict.
+# 2) Subscribes to N tickers to get their general information.
+# 3) When information is received, checks if the ticker is
+#    in ticker_updates_container and adds it if not.
+# 4) Disconnects when it has the information for each ticker.
 
 from bittrex_websocket.websocket_client import BittrexSocket
 from time import sleep
@@ -42,8 +44,8 @@ def main():
         sleep(0.01)
         ws.subscribe_to_exchange_deltas([ticker])
 
-    # Users can also subscribe without introducing delays in invoking but
-    # it is recommended when you are subscribing to a large list of tickers.
+    # Users can also subscribe without introducing delays during invoking but
+    # it is the recommended way when you are subscribing to a large list of tickers.
     # ws.subscribe_to_exchange_deltas(tickers)
 
     while len(ws.ticker_updates_container) < len(tickers):

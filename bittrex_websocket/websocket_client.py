@@ -38,7 +38,7 @@ class BittrexSocket(WebSocket):
     def _start_main_thread(self):
         self.control_queue = Queue()
         self.control_queue.put(ConnectEvent())
-        thread = Thread(target=self.control_queue_handler, daemon=True, name='ControlQueue')
+        thread = Thread(target=self.control_queue_handler, daemon=True, name='ControlQueueThread')
         self.threads.append(thread)
         thread.start()
 
@@ -68,7 +68,7 @@ class BittrexSocket(WebSocket):
         hub.client.on(BittrexParameters.BALANCE_DELTA, self._on_private)
         hub.client.on(BittrexParameters.ORDER_DELTA, self._on_private)
         self.connection = BittrexConnection(connection, hub)
-        thread = Thread(target=self._connection_handler, daemon=True, name='SocketConnection')
+        thread = Thread(target=self._connection_handler, daemon=True, name='SocketConnectionThread')
         self.threads.append(thread)
         thread.start()
 

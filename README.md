@@ -154,7 +154,7 @@ async def on_public(self, msg):
 async def on_private(self, msg):
     # The main channel for all private methods.
 
-def on_error(self, error):
+async def on_error(self, error):
     # Receive error message from the SignalR connection.
 
 ```
