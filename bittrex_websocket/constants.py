@@ -32,7 +32,6 @@ class BittrexParameters(Constant):
 
 
 class BittrexMethods(Constant):
-    # Public methods
     SUBSCRIBE_TO_EXCHANGE_DELTAS = 'SubscribeToExchangeDeltas'
     SUBSCRIBE_TO_SUMMARY_DELTAS = 'SubscribeToSummaryDeltas'
     SUBSCRIBE_TO_SUMMARY_LITE_DELTAS = 'SubscribeToSummaryLiteDeltas'
