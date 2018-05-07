@@ -30,6 +30,8 @@ The version is built upon ``asyncio`` which is Python's standard asynchronous I/
 
 If you are looking for a ``non-async`` version or you are using Python=2.7, then take a look at my other library: `bittrex-websocket <https://github.com/slazarov/python-bittrex-websocket>`_.
 
+--------------
+
 Documentation
     http://python-bittrex-websocket-docs.readthedocs.io/en/latest/
 
