@@ -26,7 +26,7 @@ It provides users with a simple and easy to use interface to the `Bittrex Exchan
 
 Users can use it to access real-time public data (e.g exchange status, summary ticks and order fills) and account-level data such as order and balance status. The goal of the package is to serve as a foundation block which users can use to build upon their applications. Examples usages can include maintaining live order books, recording trade history, analysing order flow and many more.
 
-The version is built upon :mod:`asyncio` which is Python's standard asynchronous I/O framework.
+The version is built upon ``asyncio`` which is Python's standard asynchronous I/O framework.
 
 If you are looking for a ``non-async`` version or you are using Python=2.7, then take a look at my other library: `bittrex-websocket <https://github.com/slazarov/python-bittrex-websocket>`_.
 
