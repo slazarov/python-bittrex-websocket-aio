@@ -10,7 +10,7 @@ install_requires = \
 
 setup(
     name='bittrex-websocket-aio',
-    version='0.0.0.2.7',
+    version='0.0.0.2.8',
     author='Stanislav Lazarov',
     author_email='s.a.lazarov@gmail.com',
     license='MIT',
