@@ -18,8 +18,8 @@
 .. |logo| image:: /resources/py_btrx.svg
     :width: 60px
 
-What is ``bittrex-websocket``?
---------------------------
+What is ``bittrex-websocket-aio``?
+----------------------------------
 Python Bittrex WebSocket (PBW) is the first unofficial Python wrapper for
 the `Bittrex Websocket API <https://github.com/Bittrex/bittrex.github.io>`_.
 It provides users with a simple and easy to use interface to the `Bittrex Exchange <https://bittrex.com>`_.
