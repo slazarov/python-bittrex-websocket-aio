@@ -52,7 +52,7 @@ Quick Start
 -----------
 .. code:: bash
 
-    pip install bittrex-websocket
+    pip install bittrex-websocket-aio
 
 .. code:: python
 
