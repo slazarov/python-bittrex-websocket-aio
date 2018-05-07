@@ -9,10 +9,10 @@
 # Overview:
 # ---------
 # 1) Creates a custom ticker_updates_container dict.
-# 2) Subscribes to N tickers to get their general information.
+# 2) Subscribes to N tickers and starts receiving market data.
 # 3) When information is received, checks if the ticker is
 #    in ticker_updates_container and adds it if not.
-# 4) Disconnects when it has the information for each ticker.
+# 4) Disconnects when it has data information for each ticker.
 
 from bittrex_websocket.websocket_client import BittrexSocket
 from time import sleep
@@ -27,17 +27,14 @@ def main():
                 ticker_updates_container[name] = msg
                 print('Just received market update for {}.'.format(name))
 
+    # Create container
     ticker_updates_container = {}
-
     # Create the socket instance
     ws = MySocket()
-
     # Enable logging
     ws.enable_log()
-
     # Define tickers
     tickers = ['BTC-ETH', 'BTC-NEO', 'BTC-ZEC', 'ETH-NEO', 'ETH-ZEC']
-
     # Subscribe to ticker information
     for ticker in tickers:
         sleep(0.01)
