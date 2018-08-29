@@ -4,13 +4,13 @@ from setuptools import setup, find_packages
 
 install_requires = \
     [
-        'websockets>=4.0.1',
+        'websockets>=6.0',
         'signalr-client-aio>=0.0.1.6.1'
     ]
 
 setup(
     name='bittrex-websocket-aio',
-    version='0.0.0.2.8',
+    version='0.0.0.3.0',
     author='Stanislav Lazarov',
     author_email='s.a.lazarov@gmail.com',
     license='MIT',
