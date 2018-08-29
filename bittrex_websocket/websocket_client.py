@@ -203,7 +203,6 @@ class BittrexSocket(WebSocket):
                 msg = await process_message(kwargs['R'])
                 if msg is not None:
                     msg['invoke_type'] = invoke
-                    msg['ticker'] = self.invokes[int(kwargs['I'])].get('ticker')
                     await self.on_public(msg)
 
     # ======================
