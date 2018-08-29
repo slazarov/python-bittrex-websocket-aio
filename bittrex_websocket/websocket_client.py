@@ -195,6 +195,7 @@ class BittrexSocket(WebSocket):
     async def _is_query_invoke(self, kwargs):
         if 'R' in kwargs and type(kwargs['R']) is not bool:
             invoke = self.invokes[int(kwargs['I'])]['invoke']
+            ticker = self.invokes[int(kwargs['I'])].get('ticker')
             if invoke == BittrexMethods.GET_AUTH_CONTENT:
                 signature = await create_signature(self.credentials['api_secret'], kwargs['R'])
                 event = SubscribeEvent(BittrexMethods.AUTHENTICATE, self.credentials['api_key'], signature)
@@ -203,6 +204,7 @@ class BittrexSocket(WebSocket):
                 msg = await process_message(kwargs['R'])
                 if msg is not None:
                     msg['invoke_type'] = invoke
+                    msg['M'] = ticker
                     await self.on_public(msg)
 
     # ======================
