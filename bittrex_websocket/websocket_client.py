@@ -100,8 +100,8 @@ class BittrexSocket(WebSocket):
                 self.connection.corehub.server.invoke(invoke, ticker)
                 logger.info('Successfully subscribed to [{}] for [{}].'.format(invoke, ticker))
         elif invoke == BittrexMethods.GET_AUTH_CONTENT:
-            self.connection.corehub.server.invoke(invoke, payload[0])
-            self.invokes.append({'invoke': invoke, 'ticker': payload[0]})
+            self.connection.corehub.server.invoke(invoke, self.credentials['api_key'])
+            self.invokes.append({'invoke': invoke, 'ticker': None})
             logger.info('Retrieving authentication challenge.')
         elif invoke == BittrexMethods.AUTHENTICATE:
             self.connection.corehub.server.invoke(invoke, payload[0], payload[1])
@@ -163,7 +163,7 @@ class BittrexSocket(WebSocket):
 
     def authenticate(self, api_key, api_secret):
         self.credentials = {'api_key': api_key, 'api_secret': api_secret}
-        event = SubscribeEvent(BittrexMethods.GET_AUTH_CONTENT, api_key)
+        event = SubscribeEvent(BittrexMethods.GET_AUTH_CONTENT)
         self.control_queue.put(event)
 
     def disconnect(self):
