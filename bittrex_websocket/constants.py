@@ -21,8 +21,8 @@ class EventTypes(Constant):
 
 class BittrexParameters(Constant):
     # Connection parameters
-    URL = 'https://socket.bittrex.com/signalr'
-    HUB = 'c2'
+    URL = 'https://socket-v3.bittrex.com/signalr'
+    HUB = 'c3'
     # Callbacks
     MARKET_DELTA = 'uE'
     SUMMARY_DELTA = 'uS'

@@ -9,16 +9,16 @@ install_requires = \
     ]
 
 setup(
-    name='bittrex-websocket-aio',
-    version='0.0.0.3.0',
-    author='Stanislav Lazarov',
-    author_email='s.a.lazarov@gmail.com',
+    name='bittrex-websocket-aio-pundix',
+    version='0.0.0.1.0',
+    author='Jian Sheng Low',
+    author_email='jiansheng@pundix.com',
     license='MIT',
-    url='https://github.com/slazarov/python-bittrex-websocket-aio',
+    url='https://github.com/lowjiansheng/python-bittrex-websocket-aio',
     packages=find_packages(exclude=['tests*']),
     install_requires=install_requires,
     description='The unofficial Python websocket (AsyncIO) client for the Bittrex Cryptocurrency Exchange',
-    download_url='https://github.com/slazarov/python-bittrex-websocket-aio.git',
+    download_url='https://github.com/lowjiansheng/python-bittrex-websocket-aio.git',
     keywords=['bittrex', 'bittrex-websocket', 'orderbook', 'trade', 'bitcoin', 'ethereum', 'BTC', 'ETH', 'client',
               'websocket', 'exchange', 'crypto', 'currency', 'trading', 'async', 'aio'],
     classifiers=[
