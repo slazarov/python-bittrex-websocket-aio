@@ -29,10 +29,12 @@ class BittrexParameters(Constant):
     SUMMARY_DELTA_LITE = 'uL'
     BALANCE_DELTA = 'uB'
     ORDER_DELTA = 'uO'
+    ORDERBOOK_DELTA = "orderBook"
 
 
 class BittrexMethods(Constant):
     SUBSCRIBE_TO_EXCHANGE_DELTAS = 'SubscribeToExchangeDeltas'
+    SUBSCRIBE = 'Subscribe'
     SUBSCRIBE_TO_SUMMARY_DELTAS = 'SubscribeToSummaryDeltas'
     SUBSCRIBE_TO_SUMMARY_LITE_DELTAS = 'SubscribeToSummaryLiteDeltas'
     QUERY_SUMMARY_STATE = 'QuerySummaryState'

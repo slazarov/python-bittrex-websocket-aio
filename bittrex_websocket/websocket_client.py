@@ -38,7 +38,8 @@ class BittrexSocket(WebSocket):
     def _start_main_thread(self):
         self.control_queue = Queue()
         self.control_queue.put(ConnectEvent())
-        thread = Thread(target=self.control_queue_handler, daemon=True, name='ControlQueueThread')
+        thread = Thread(target=self.control_queue_handler,
+                        daemon=True, name='ControlQueueThread')
         self.threads.append(thread)
         thread.start()
 
@@ -65,19 +66,24 @@ class BittrexSocket(WebSocket):
         hub.client.on(BittrexParameters.MARKET_DELTA, self._on_public)
         hub.client.on(BittrexParameters.SUMMARY_DELTA, self._on_public)
         hub.client.on(BittrexParameters.SUMMARY_DELTA_LITE, self._on_public)
+        hub.client.on(BittrexParameters.BALANCE_DELTA, self._on_public)
         hub.client.on(BittrexParameters.BALANCE_DELTA, self._on_private)
         hub.client.on(BittrexParameters.ORDER_DELTA, self._on_private)
         self.connection = BittrexConnection(connection, hub)
-        thread = Thread(target=self._connection_handler, daemon=True, name='SocketConnectionThread')
+        thread = Thread(target=self._connection_handler,
+                        daemon=True, name='SocketConnectionThread')
         self.threads.append(thread)
         thread.start()
 
     def _connection_handler(self):
         if str(type(self.connection.conn.session)) == OtherConstants.CF_SESSION_TYPE:
-            logger.info('Establishing connection to Bittrex through {}.'.format(self.url))
-            logger.info('cfscrape detected, using a cfscrape session instead of requests.')
+            logger.info(
+                'Establishing connection to Bittrex through {}.'.format(self.url))
+            logger.info(
+                'cfscrape detected, using a cfscrape session instead of requests.')
         else:
-            logger.info('Establishing connection to Bittrex through {}.'.format(self.url))
+            logger.info(
+                'Establishing connection to Bittrex through {}.'.format(self.url))
         try:
             self.connection.conn.start()
         except ConnectionClosed as e:
@@ -97,15 +103,19 @@ class BittrexSocket(WebSocket):
         if invoke in [BittrexMethods.SUBSCRIBE_TO_EXCHANGE_DELTAS, BittrexMethods.QUERY_EXCHANGE_STATE]:
             for ticker in payload[0]:
                 self.invokes.append({'invoke': invoke, 'ticker': ticker})
-                self.connection.corehub.server.invoke(invoke, ticker)
-                logger.info('Successfully subscribed to [{}] for [{}].'.format(invoke, ticker))
+                self.connection.corehub.server.invoke(
+                    BittrexMethods.SUBSCRIBE, ticker)
+                logger.info(
+                    'Successfully subscribed to [{}] for [{}].'.format(invoke, ticker))
         elif invoke == BittrexMethods.GET_AUTH_CONTENT:
             self.connection.corehub.server.invoke(invoke, payload[0])
             self.invokes.append({'invoke': invoke, 'ticker': payload[0]})
             logger.info('Retrieving authentication challenge.')
         elif invoke == BittrexMethods.AUTHENTICATE:
-            self.connection.corehub.server.invoke(invoke, payload[0], payload[1])
-            logger.info('Challenge retrieved. Sending authentication. Awaiting messages...')
+            self.connection.corehub.server.invoke(
+                invoke, payload[0], payload[1])
+            logger.info(
+                'Challenge retrieved. Sending authentication. Awaiting messages...')
             # No need to append invoke list, because AUTHENTICATE is called from successful GET_AUTH_CONTENT.
         else:
             self.invokes.append({'invoke': invoke, 'ticker': None})
@@ -197,13 +207,19 @@ class BittrexSocket(WebSocket):
             invoke = self.invokes[int(kwargs['I'])]['invoke']
             if invoke == BittrexMethods.GET_AUTH_CONTENT:
                 signature = await create_signature(self.credentials['api_secret'], kwargs['R'])
-                event = SubscribeEvent(BittrexMethods.AUTHENTICATE, self.credentials['api_key'], signature)
+                event = SubscribeEvent(
+                    BittrexMethods.AUTHENTICATE, self.credentials['api_key'], signature)
                 self.control_queue.put(event)
+            elif kwargs['I'] == '0':
+                logging.info(
+                    "Success connection to websocket from response...")
             else:
-                msg = await process_message(kwargs['R'])
+                # Bittrex should return the first entry
+                msg = await process_message(kwargs[0]['R'])
                 if msg is not None:
                     msg['invoke_type'] = invoke
-                    msg['ticker'] = self.invokes[int(kwargs['I'])].get('ticker')
+                    msg['ticker'] = self.invokes[int(
+                        kwargs['I'])].get('ticker')
                     await self.on_public(msg)
 
     # ======================
